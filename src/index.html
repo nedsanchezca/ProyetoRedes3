@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Election Results</title>
+    <title>Pagos en linea</title>
 
     <!-- Bootstrap -->
     <link href="css/bootstrap.min.css" rel="stylesheet">
@@ -24,8 +24,8 @@
               <thead>
                 <tr>
                   <th scope="col">#</th>
-                  <th scope="col">Name</th>
-                  <th scope="col">Votes</th>
+                  <th scope="col">Entidad</th>
+                  <th scope="col">Saldo</th>
                 </tr>
               </thead>
               <tbody id="candidatesResults">
@@ -37,6 +37,7 @@
                 <label for="candidatesSelect">Select Candidate</label>
                 <select class="form-control" id="candidatesSelect">
                 </select>
+                <input class="form-control form-control-lg" type="text" placeholder="Cantidad de pago" id="pago">
               </div>
               <button type="submit" class="btn btn-primary">Vote</button>
               <hr />

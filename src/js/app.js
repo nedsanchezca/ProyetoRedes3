@@ -24,7 +24,7 @@ App = {
   },
 
   initContract: function() {
-    $.getJSON("Election.json", function(election) {
+    $.getJSON("Pagos.json", function(election) {
       // Instantiate a new truffle contract from the artifact
       App.contracts.Election = TruffleContract(election);
       // Connect provider to interact with contract
@@ -110,8 +110,11 @@ App = {
 
   castVote: function() {
     var candidateId = $('#candidatesSelect').val();
+    var pago = $('#pago').val();
+    console.log(pago);
     App.contracts.Election.deployed().then(function(instance) {
-      return instance.vote(candidateId, { from: App.account });
+      console.log("flag");
+      return instance.vote(candidateId, pago);
     }).then(function(result) {
       // Wait for votes to update
       $("#content").hide();
