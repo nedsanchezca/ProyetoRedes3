@@ -26,9 +26,9 @@ App = {
   initContract: function() {
     $.getJSON("Pagos.json", function(election) {
       // Instantiate a new truffle contract from the artifact
-      App.contracts.Election = TruffleContract(election);
+      App.contracts.Pagos = TruffleContract(election);
       // Connect provider to interact with contract
-      App.contracts.Election.setProvider(App.web3Provider);
+      App.contracts.Pagos.setProvider(App.web3Provider);
 
       App.listenForEvents();
 
@@ -38,7 +38,7 @@ App = {
 
   // Listen for events emitted from the contract
   listenForEvents: function() {
-    App.contracts.Election.deployed().then(function(instance) {
+    App.contracts.Pagos.deployed().then(function(instance) {
       // Restart Chrome if you are unable to receive this event
       // This is a known issue with Metamask
       // https://github.com/MetaMask/metamask-extension/issues/2393
@@ -54,7 +54,7 @@ App = {
   },
 
   render: function() {
-    var electionInstance;
+    var pagoInstance;
     var loader = $("#loader");
     var content = $("#content");
 
@@ -70,32 +70,32 @@ App = {
     });
 
     // Load contract data
-    App.contracts.Election.deployed().then(function(instance) {
-      electionInstance = instance;
-      return electionInstance.candidatesCount();
-    }).then(function(candidatesCount) {
-      var candidatesResults = $("#candidatesResults");
-      candidatesResults.empty();
+    App.contracts.Pagos.deployed().then(function(instance) {
+      pagoInstance = instance;
+      return pagoInstance.contServicio();
+    }).then(function(contServicio) {
+      var saldoCancelar = $("#saldoCancelar");
+      saldoCancelar.empty();
 
-      var candidatesSelect = $('#candidatesSelect');
-      candidatesSelect.empty();
+      var seleccionServicios = $('#seleccionServicios');
+      seleccionServicios.empty();
 
-      for (var i = 1; i <= candidatesCount; i++) {
-        electionInstance.candidates(i).then(function(candidate) {
-          var id = candidate[0];
-          var name = candidate[1];
-          var voteCount = candidate[2];
+      for (var i = 1; i <= contServicio; i++) {
+        pagoInstance.servicios(i).then(function(pago) {
+          var id = pago[0];
+          var nombre = pago[1];
+          var saldo = pago[2];
 
           // Render candidate Result
-          var candidateTemplate = "<tr><th>" + id + "</th><td>" + name + "</td><td>" + voteCount + "</td></tr>"
-          candidatesResults.append(candidateTemplate);
+          var plantillaPago = "<tr><th>" + id + "</th><td>" + nombre + "</td><td>" + saldo + "</td></tr>"
+          saldoCancelar.append(plantillaPago);
 
           // Render candidate ballot option
-          var candidateOption = "<option value='" + id + "' >" + name + "</ option>"
-          candidatesSelect.append(candidateOption);
+          var opcionServicio = "<option value='" + id + "' >" + nombre + "</ option>"
+          seleccionServicios.append(opcionServicio);
         });
       }
-      return electionInstance.voters(App.account);
+      return pagoInstance.usuarios(App.account);
     }).then(function(hasVoted) {
       // Do not allow a user to vote
       if(hasVoted) {
@@ -108,13 +108,11 @@ App = {
     });
   },
 
-  castVote: function() {
-    var candidateId = $('#candidatesSelect').val();
+  hacerPago: function() {
+    var servicioId = $('#seleccionServicios').val();
     var pago = $('#pago').val();
-    console.log(pago);
     App.contracts.Election.deployed().then(function(instance) {
-      console.log("flag");
-      return instance.vote(candidateId, pago);
+      return instance.vote(servicioId, pago);
     }).then(function(result) {
       // Wait for votes to update
       $("#content").hide();
