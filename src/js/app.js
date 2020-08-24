@@ -10,7 +10,6 @@ App = {
   },
 
   initWeb3: function() {
-    // TODO: refactor conditional
     if (typeof web3 !== 'undefined') {
       // If a web3 instance is already provided by Meta Mask.
       App.web3Provider = web3.currentProvider;
@@ -39,15 +38,12 @@ App = {
   // Listen for events emitted from the contract
   listenForEvents: function() {
     App.contracts.Pagos.deployed().then(function(instance) {
-      // Restart Chrome if you are unable to receive this event
-      // This is a known issue with Metamask
-      // https://github.com/MetaMask/metamask-extension/issues/2393
       instance.votedEvent({}, {
         fromBlock: 0,
         toBlock: 'latest'
       }).watch(function(error, event) {
         console.log("event triggered", event)
-        // Reload when a new vote is recorded
+        // Volver a cargar la página cuando se registre un evento
         App.render();
       });
     });
@@ -65,10 +61,18 @@ App = {
     web3.eth.getCoinbase(function(err, account) {
       if (err === null) {
         App.account = account;
-        $("#accountAddress").html("Your Account: " + account);
+        $("#accountAddress").html("Cuenta #: " + account);
       }
     });
-
+    // Cargar saldo del usuario
+    App.contracts.Pagos.deployed().then(function(instance) {
+      saldoInstance = instance;
+      return saldoInstance.disponible();
+    }).then(function(disponible){
+      var saldo = $("#saldoUsuario");
+      var plantillaSaldo = "Presupuesto de la cuenta " + disponible;
+      saldo.append(plantillaSaldo);
+    });
     // Load contract data
     App.contracts.Pagos.deployed().then(function(instance) {
       pagoInstance = instance;
@@ -79,6 +83,9 @@ App = {
 
       var seleccionServicios = $('#seleccionServicios');
       seleccionServicios.empty();
+
+      var pago = $("#pago");
+      pago.empty();
 
       for (var i = 1; i <= contServicio; i++) {
         pagoInstance.servicios(i).then(function(pago) {
@@ -96,9 +103,8 @@ App = {
         });
       }
       return pagoInstance.usuarios(App.account);
-    }).then(function(hasVoted) {
-      // Do not allow a user to vote
-      if(hasVoted) {
+    }).then(function(hapagado) {
+      if(hapagado) {
         $('form').hide();
       }
       loader.hide();
@@ -111,10 +117,9 @@ App = {
   hacerPago: function() {
     var servicioId = $('#seleccionServicios').val();
     var pago = $('#pago').val();
-    App.contracts.Election.deployed().then(function(instance) {
-      return instance.vote(servicioId, pago);
+    App.contracts.Pagos.deployed().then(function(instance) {
+      return instance.pagar(servicioId, pago);
     }).then(function(result) {
-      // Wait for votes to update
       $("#content").hide();
       $("#loader").show();
     }).catch(function(err) {

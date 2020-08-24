@@ -1,7 +1,7 @@
 pragma solidity >=0.4.21 <0.7.0;
 
 contract Pagos {
-    // Model a Candidate
+    // Modelamos nuestro servicio
     struct Servicio {
         uint id;
         string name;
@@ -13,40 +13,44 @@ contract Pagos {
     // Guarda a los servicios
     // Añade el servicio
     mapping(uint => Servicio) public servicios;
-    // Store Candidates Count
+    // Store pagos Count
     uint public contServicio;
     uint public disponible;
 
-    // voted event
-    event votedEvent (
-        uint indexed _candidateId
-    );
-
     constructor () public {
-        disponible = 10000;
+        disponible = 200000;
         agregarServicio("Acueducto", 10000);
-        agregarServicio("Algo mas", 20000);
+        agregarServicio("Mercado del mes", 20000);
+        agregarServicio("Luz", 15000);
+        agregarServicio("Tarjeta de credito", 30000);
+        agregarServicio("Netflix", 10000);
+        agregarServicio("Spotify", 10000);
     }
+
 
     function agregarServicio (string memory name, uint saldo) private {
         contServicio ++;
         servicios[contServicio] = Servicio(contServicio, name, saldo);
     }
 
-    function pagar (uint _candidateId, uint pago) public {
+    function pagar (uint _pagoId, uint pago) public {
         // require that they haven't voted before
         require(!usuarios[msg.sender]);
 
-        // require a valid candidate
-        require(_candidateId > 0 && _candidateId <= contServicio);
+        // Verificamos que el cliente sea valido 
+        require(_pagoId > 0 && _pagoId <= contServicio);
 
-        // record that voter has voted
-        //voters[msg.sender] = true;
+        // hacemos el pago del servicio correspondiente
+        servicios[_pagoId].saldo = servicios[_pagoId].saldo - pago;
 
-        // update candidate vote Count
-        servicios[_candidateId].saldo = servicios[_candidateId].saldo - pago;
+        //Se resta la cantidad del pago dado a el saldo disponible
+        disponible = disponible - pago;
 
-        // trigger voted event
-        //emit votedEvent(_candidateId);
     }
+
+
+
+    event votedEvent (
+        uint indexed _candidateId
+    );
 }
